@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badri Nath Jewellers - Premium Jewelry Collection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        .product-card:hover {
+            transform: translateY(-4px);
+            transition: transform 0.3s ease;
+        }
+        .cart-slide {
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        .cart-slide.open {
+            transform: translateX(0);
+        }
+        .modal {
+            display: none;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-amber-50 to-orange-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-red-800 to-red-700 text-white shadow-lg sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold">Badri Nath Jewellers</h1>
+                </div>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#home" class="hover:text-red-300 transition-colors">Home</a>
+                    <a href="#products" class="hover:text-red-300 transition-colors">Products</a>
+                    <a href="#about" class="hover:text-red-300 transition-colors">About</a>
+                    <a href="#contact" class="hover:text-red-300 transition-colors">Contact</a>
+                </nav>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" id="searchBox" placeholder="Search jewelry..." class="px-4 py-2 rounded-lg text-gray-800 w-64 focus:outline-none focus:ring-2 focus:ring-red-300" onkeyup="searchProducts()">
+                    </div>
+                    <div class="relative">
+                        <button onclick="toggleWishlist()" class="hover:text-red-300 transition-colors flex items-center space-x-1">
+                            <span>Wishlist</span>
+                            <span id="wishlistCount" class="bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">0</span>
+                        </button>
+                        <div id="wishlistDropdown" class="absolute top-full right-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-50 hidden">
+                            <div class="p-4 border-b">
+                                <h3 class="font-bold text-gray-800">My Wishlist</h3>
+                            </div>
+                            <div id="wishlistItems" class="max-h-64 overflow-y-auto">
+                                <p class="p-4 text-gray-500 text-center">Your wishlist is empty</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="toggleCart()" class="relative hover:text-red-300 transition-colors flex items-center space-x-1">
+                        <span>Cart</span>
+                        <span id="cartCount" class="bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="py-16 bg-gradient-to-r from-red-100 to-pink-50">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-5xl font-bold text-red-800 mb-6">Exquisite Jewelry Collection</h2>
+            <p class="text-xl text-red-700 mb-8 max-w-2xl mx-auto">Discover our handcrafted jewelry pieces that blend traditional artistry with contemporary elegance</p>
+            <button onclick="document.getElementById('products').scrollIntoView({behavior: 'smooth'})" class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors shadow-lg">
+                Shop Now
+            </button>
+        </div>
+    </section>
+
+    <!-- Product Categories -->
+    <section class="py-12 bg-white">
+        <div class="container mx-auto px-4">
+            <h3 class="text-3xl font-bold text-center text-red-800 mb-8">Shop by Category</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <button onclick="filterProducts('all')" class="category-btn bg-red-100 hover:bg-red-200 p-6 rounded-lg text-center transition-colors border-2 border-transparent hover:border-red-400">
+                    <div class="text-3xl mb-2">💍</div>
+                    <div class="font-semibold text-red-800">All Jewelry</div>
+                </button>
+                <button onclick="filterProducts('rings')" class="category-btn bg-red-100 hover:bg-red-200 p-6 rounded-lg text-center transition-colors border-2 border-transparent hover:border-red-400">
+                    <div class="text-3xl mb-2">💍</div>
+                    <div class="font-semibold text-red-800">Rings</div>
+                </button>
+                <button onclick="filterProducts('necklaces')" class="category-btn bg-red-100 hover:bg-red-200 p-6 rounded-lg text-center transition-colors border-2 border-transparent hover:border-red-400">
+                    <div class="text-3xl mb-2">📿</div>
+                    <div class="font-semibold text-red-800">Necklaces</div>
+                </button>
+                <button onclick="filterProducts('earrings')" class="category-btn bg-red-100 hover:bg-red-200 p-6 rounded-lg text-center transition-colors border-2 border-transparent hover:border-red-400">
+                    <div class="text-3xl mb-2">👂</div>
+                    <div class="font-semibold text-red-800">Earrings</div>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="py-16 bg-gradient-to-br from-red-50 to-pink-100">
+        <div class="container mx-auto px-4">
+            <h3 class="text-3xl font-bold text-center text-red-800 mb-12">Our Premium Collection</h3>
+            <div id="productGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <!-- Products will be dynamically loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center">
+                <h3 class="text-3xl font-bold text-red-800 mb-8">About Badri Nath Jewellers</h3>
+                <p class="text-lg text-gray-700 mb-6">
+                    For over three generations, Badri Nath Jewellers has been crafting exquisite jewelry pieces that celebrate life's precious moments. Our master craftsmen combine traditional techniques with contemporary designs to create timeless pieces.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+                    <div class="text-center">
+                        <div class="text-4xl mb-4">✨</div>
+                        <h4 class="font-bold text-red-800 mb-2">Premium Quality</h4>
+                        <p class="text-gray-600">Only the finest materials and gemstones</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl mb-4">🏆</div>
+                        <h4 class="font-bold text-red-800 mb-2">Expert Craftsmanship</h4>
+                        <p class="text-gray-600">Handcrafted by skilled artisans</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl mb-4">💎</div>
+                        <h4 class="font-bold text-red-800 mb-2">Lifetime Warranty</h4>
+                        <p class="text-gray-600">Quality guaranteed for generations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="py-16 bg-gradient-to-r from-red-50 to-pink-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-6xl mx-auto">
+                <h3 class="text-3xl font-bold text-center text-red-800 mb-12">Our Premium Services</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                        <div class="text-4xl mb-4">🔧</div>
+                        <h4 class="font-bold text-red-800 mb-3">Lifetime Servicing</h4>
+                        <p class="text-gray-600">Complete maintenance and repair services for all your jewelry pieces. We ensure your precious items remain beautiful for generations.</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                        <div class="text-4xl mb-4">🛠️</div>
+                        <h4 class="font-bold text-red-800 mb-3">Jewelry Maintenance</h4>
+                        <p class="text-gray-600">Professional cleaning, polishing, and restoration services to keep your jewelry looking brand new.</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                        <div class="text-4xl mb-4">💉</div>
+                        <h4 class="font-bold text-red-800 mb-3">Ear & Nose Piercing</h4>
+                        <p class="text-gray-600">Safe and hygienic piercing services using both traditional methods and modern gun techniques by certified professionals.</p>
+                        <div class="mt-4 text-sm text-red-600">
+                            <div>• Traditional Method Available</div>
+                            <div>• Modern Gun Method</div>
+                            <div>• Certified Professionals</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16 bg-gradient-to-r from-red-800 to-red-700 text-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <h3 class="text-3xl font-bold text-center mb-12">Visit Our Store</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div>
+                        <h4 class="text-xl font-bold mb-4">Store Information</h4>
+                        <div class="space-y-3">
+                            <p class="flex items-center"><span class="mr-3">📍</span> 123 Jewelry Street, Diamond District</p>
+                            <p class="flex items-center"><span class="mr-3">📞</span> +91 98765 43210</p>
+                            <p class="flex items-center"><span class="mr-3">✉️</span> info@badrinathj.com</p>
+                            <p class="flex items-center"><span class="mr-3">🕒</span> Mon-Sat: 10AM-8PM, Sun: 11AM-6PM</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-bold mb-4">Get in Touch</h4>
+                        <form class="space-y-4" onsubmit="handleContactForm(event)">
+                            <input type="text" placeholder="Your Name" class="w-full p-3 rounded-lg text-gray-800" required>
+                            <input type="email" placeholder="Your Email" class="w-full p-3 rounded-lg text-gray-800" required>
+                            <textarea placeholder="Your Message" rows="4" class="w-full p-3 rounded-lg text-gray-800" required></textarea>
+                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Shopping Cart Sidebar -->
+    <div id="cartSidebar" class="cart-slide fixed top-0 right-0 w-96 h-full bg-white shadow-2xl z-50 overflow-y-auto">
+        <div class="p-6 border-b">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xl font-bold text-red-800">Shopping Cart</h3>
+                <button onclick="toggleCart()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+        </div>
+        <div id="cartItems" class="p-6">
+            <p class="text-gray-500 text-center">Your cart is empty</p>
+        </div>
+        <div id="cartFooter" class="border-t p-6 bg-gray-50">
+            <div class="flex justify-between items-center mb-4">
+                <span class="font-bold text-lg">Total: </span>
+                <span id="cartTotal" class="font-bold text-lg text-red-600">₹0</span>
+            </div>
+            <button onclick="proceedToCheckout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors">
+                Proceed to Checkout
+            </button>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center">
+        <div class="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 id="modalTitle" class="text-2xl font-bold text-red-800"></h3>
+                    <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                </div>
+                <div id="modalContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center">
+        <div class="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-6">
+                    <h3 class="text-2xl font-bold text-red-800">Checkout - Demo</h3>
+                    <button onclick="closeCheckout()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                </div>
+                <div class="bg-yellow-100 border border-yellow-400 rounded-lg p-4 mb-6">
+                    <p class="text-yellow-800 text-sm">
+                        <strong>Demo Notice:</strong> This is a sample checkout form. No actual payment will be processed.
+                    </p>
+                </div>
+                <form onsubmit="handleCheckout(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" placeholder="First Name" class="p-3 border rounded-lg" required>
+                        <input type="text" placeholder="Last Name" class="p-3 border rounded-lg" required>
+                    </div>
+                    <input type="email" placeholder="Email Address" class="w-full p-3 border rounded-lg" required>
+                    <input type="tel" placeholder="Phone Number" class="w-full p-3 border rounded-lg" required>
+                    <textarea placeholder="Shipping Address" rows="3" class="w-full p-3 border rounded-lg" required></textarea>
+                    <div class="border-t pt-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="font-bold text-lg">Order Total:</span>
+                            <span id="checkoutTotal" class="font-bold text-lg text-red-600"></span>
+                        </div>
+                        <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors">
+                            Place Order (Demo)
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample product data
+        const products = [
+            {id: 1, name: "Diamond Solitaire Ring", price: 45000, category: "rings", image: "💍", description: "Elegant 1-carat diamond solitaire ring in 18k gold"},
+            {id: 2, name: "Gold Chain Necklace", price: 25000, category: "necklaces", image: "📿", description: "Traditional 22k gold chain necklace, 20 inches"},
+            {id: 3, name: "Pearl Drop Earrings", price: 8000, category: "earrings", image: "👂", description: "Cultured pearl drop earrings with gold accents"},
+            {id: 4, name: "Emerald Ring", price: 35000, category: "rings", image: "💍", description: "Natural emerald ring with diamond accents"},
+            {id: 5, name: "Temple Jewelry Set", price: 55000, category: "necklaces", image: "📿", description: "Traditional temple jewelry necklace set"},
+            {id: 6, name: "Diamond Studs", price: 15000, category: "earrings", image: "👂", description: "Classic diamond stud earrings, 0.5 carat each"},
+            {id: 7, name: "Ruby Wedding Ring", price: 40000, category: "rings", image: "💍", description: "Stunning ruby and diamond wedding ring"},
+            {id: 8, name: "Kundan Necklace", price: 30000, category: "necklaces", image: "📿", description: "Handcrafted Kundan necklace with pearls"},
+            {id: 9, name: "Gold Hoop Earrings", price: 12000, category: "earrings", image: "👂", description: "Classic 18k gold hoop earrings"},
+            {id: 10, name: "Sapphire Ring", price: 38000, category: "rings", image: "💍", description: "Blue sapphire ring with white gold band"},
+            {id: 11, name: "Choker Necklace", price: 22000, category: "necklaces", image: "📿", description: "Modern gold choker with geometric design"},
+            {id: 12, name: "Chandelier Earrings", price: 18000, category: "earrings", image: "👂", description: "Elaborate chandelier earrings with crystals"}
+        ];
+
+        let cart = [];
+        let wishlist = [];
+        let currentFilter = 'all';
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            displayProducts(products);
+        });
+
+        // Display products
+        function displayProducts(productsToShow) {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = '';
+            
+            productsToShow.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer';
+                productCard.innerHTML = `
+                    <div class="p-6 text-center">
+                        <div class="text-6xl mb-4">${product.image}</div>
+                        <h4 class="font-bold text-lg text-amber-800 mb-2">${product.name}</h4>
+                        <p class="text-gray-600 text-sm mb-4">${product.description}</p>
+                        <div class="text-2xl font-bold text-amber-600 mb-4">₹${product.price.toLocaleString()}</div>
+                        <button onclick="addToCart(${product.id})" class="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors w-full mb-2">
+                            Add to Cart
+                        </button>
+                        <button onclick="showProductDetails(${product.id})" class="text-amber-600 hover:text-amber-700 text-sm underline">
+                            View Details
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(productCard);
+            });
+        }
+
+        // Filter products
+        function filterProducts(category) {
+            currentFilter = category;
+            const filtered = category === 'all' ? products : products.filter(p => p.category === category);
+            displayProducts(filtered);
+            
+            // Update active category button
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('bg-amber-300', 'border-amber-500');
+                btn.classList.add('bg-amber-100', 'border-transparent');
+            });
+            event.target.closest('.category-btn').classList.remove('bg-amber-100', 'border-transparent');
+            event.target.closest('.category-btn').classList.add('bg-amber-300', 'border-amber-500');
+        }
+
+        // Add to cart
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({...product, quantity: 1});
+            }
+            
+            updateCartDisplay();
+            showNotification('Added to cart!');
+        }
+
+        // Update cart display
+        function updateCartDisplay() {
+            const cartCount = document.getElementById('cartCount');
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            cartCount.textContent = totalItems;
+            cartTotal.textContent = `₹${totalPrice.toLocaleString()}`;
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p class="text-gray-500 text-center">Your cart is empty</p>';
+            } else {
+                cartItems.innerHTML = cart.map(item => `
+                    <div class="flex items-center justify-between border-b pb-4 mb-4">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-2xl">${item.image}</span>
+                            <div>
+                                <div class="font-semibold text-sm">${item.name}</div>
+                                <div class="text-amber-600">₹${item.price.toLocaleString()}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="updateQuantity(${item.id}, -1)" class="bg-gray-200 hover:bg-gray-300 w-8 h-8 rounded-full flex items-center justify-center">-</button>
+                            <span class="w-8 text-center">${item.quantity}</span>
+                            <button onclick="updateQuantity(${item.id}, 1)" class="bg-gray-200 hover:bg-gray-300 w-8 h-8 rounded-full flex items-center justify-center">+</button>
+                            <button onclick="removeFromCart(${item.id})" class="text-red-500 hover:text-red-700 ml-2">🗑️</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Update quantity
+        function updateQuantity(productId, change) {
+            const item = cart.find(item => item.id === productId);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    removeFromCart(productId);
+                } else {
+                    updateCartDisplay();
+                }
+            }
+        }
+
+        // Remove from cart
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCartDisplay();
+        }
+
+        // Toggle cart sidebar
+        function toggleCart() {
+            const sidebar = document.getElementById('cartSidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Show product details
+        function showProductDetails(productId) {
+            const product = products.find(p => p.id === productId);
+            const modal = document.getElementById('productModal');
+            const title = document.getElementById('modalTitle');
+            const content = document.getElementById('modalContent');
+            
+            title.textContent = product.name;
+            content.innerHTML = `
+                <div class="text-center mb-6">
+                    <div class="text-8xl mb-4">${product.image}</div>
+                    <div class="text-3xl font-bold text-amber-600 mb-4">₹${product.price.toLocaleString()}</div>
+                    <p class="text-gray-700 mb-6">${product.description}</p>
+                    <button onclick="addToCart(${product.id}); closeModal();" class="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
+                        Add to Cart
+                    </button>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('productModal').classList.remove('active');
+        }
+
+        // Proceed to checkout
+        function proceedToCheckout() {
+            if (cart.length === 0) {
+                showNotification('Your cart is empty!');
+                return;
+            }
+            
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('checkoutTotal').textContent = `₹${total.toLocaleString()}`;
+            document.getElementById('checkoutModal').classList.add('active');
+            toggleCart();
+        }
+
+        // Close checkout
+        function closeCheckout() {
+            document.getElementById('checkoutModal').classList.remove('active');
+        }
+
+        // Handle checkout form
+        function handleCheckout(event) {
+            event.preventDefault();
+            showNotification('Demo order placed successfully! Thank you for trying our store.');
+            cart = [];
+            updateCartDisplay();
+            closeCheckout();
+        }
+
+        // Handle contact form
+        function handleContactForm(event) {
+            event.preventDefault();
+            showNotification('Thank you for your message! We will get back to you soon.');
+            event.target.reset();
+        }
+
+        // Show notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 fade-in';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Close cart when clicking outside
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('cartSidebar');
+            const cartButton = event.target.closest('button[onclick="toggleCart()"]');
+            
+            if (!sidebar.contains(event.target) && !cartButton && sidebar.classList.contains('open')) {
+                toggleCart();
+            }
+        });
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(event) {
+            const productModal = document.getElementById('productModal');
+            const checkoutModal = document.getElementById('checkoutModal');
+            
+            if (event.target === productModal) {
+                closeModal();
+            }
+            if (event.target === checkoutModal) {
+                closeCheckout();
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'988cb8c571917a04',t:'MTc1OTQ5NzQ2OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
